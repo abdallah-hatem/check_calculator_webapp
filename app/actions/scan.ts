@@ -114,9 +114,21 @@ export async function scanReceipt(
     };
   } catch (error: any) {
     console.error("Error scanning receipt:", error);
-    // Return a structured error if possible, or null
-    // Since return type is ScanResult | null, we might need to update the signature or just log better for now.
-    // Let's throw the error so the client catches it with the message.
-    throw new Error(error.message || "Unknown error during AI scan");
+
+    let message = "Unknown error during AI scan";
+
+    if (error.message) {
+      if (error.message.includes("API key not valid") || error.message.includes("API_KEY_INVALID")) {
+        message = "The Gemini API Key provided is invalid. Please check your utils/keys.ts file.";
+      } else if (error.message.includes("quota")) {
+        message = "AI scanning quota exceeded. Please try again later.";
+      } else if (error.message.includes("network") || error.message.includes("fetch")) {
+        message = "Network error. Please check your internet connection and try again.";
+      } else {
+        message = error.message;
+      }
+    }
+
+    throw new Error(message);
   }
 }

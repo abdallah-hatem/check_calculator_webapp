@@ -8,45 +8,40 @@ import { Check, User, Plus, Trash2, X } from "lucide-react";
 interface ItemAssignerProps {
   items: ScannedItem[];
   participants: Participant[];
-  assignedItems: Record<string, string>;
-  onAssign: (itemId: string, participantId: string, itemPrice: number) => void;
-  onUnassign: (
-    itemId: string,
-    participantId: string,
-    itemPrice: number,
-  ) => void;
+  assignedItems: Record<string, string[]>;
+  onToggleAssign: (itemId: string, participantId: string) => void;
   onRemoveParticipant: (id: string) => void;
+  onAddParticipant: (name: string) => void;
+  onUpdateParticipant: (id: string, field: keyof Participant, value: any) => void;
 }
 
 export function ItemAssigner({
   items,
   participants,
   assignedItems,
-  onAssign,
-  onUnassign,
+  onToggleAssign,
   onRemoveParticipant,
+  onAddParticipant,
+  onUpdateParticipant,
 }: ItemAssignerProps) {
   const [selectedItem, setSelectedItem] = useState<string | null>(null);
+  const [newFriendName, setNewFriendName] = useState("");
 
-  const handleAssign = (participantId: string) => {
-    if (!selectedItem) return;
-
-    const item = items.find((i) => i.id === selectedItem);
-    if (item) {
-      onAssign(item.id, participantId, item.price);
-      setSelectedItem(null); // Deselect
+  const handleAddFriend = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (newFriendName.trim()) {
+      onAddParticipant(newFriendName.trim());
+      setNewFriendName("");
     }
   };
 
+  const handleAssign = (participantId: string) => {
+    if (!selectedItem) return;
+    onToggleAssign(selectedItem, participantId);
+  };
+
   const handleItemClick = (item: ScannedItem) => {
-    const assigneeId = assignedItems[item.id];
-    if (assigneeId) {
-      // If already assigned, unassign it
-      onUnassign(item.id, assigneeId, item.price);
-    } else {
-      // Select for assignment
-      setSelectedItem(item.id === selectedItem ? null : item.id);
-    }
+    setSelectedItem(item.id === selectedItem ? null : item.id);
   };
 
   return (
@@ -66,23 +61,19 @@ export function ItemAssigner({
 
           <div className="space-y-2 max-h-[400px] overflow-y-auto pr-2">
             {items.map((item) => {
-              const isAssigned = !!assignedItems[item.id];
-              const assignedToName = isAssigned
-                ? participants.find((p) => p.id === assignedItems[item.id])
-                    ?.name
-                : null;
+              const currentAssignees = assignedItems[item.id] || [];
+              const isAssigned = currentAssignees.length > 0;
 
               return (
                 <button
                   key={item.id}
                   onClick={() => handleItemClick(item)}
-                  className={`w-full flex items-center justify-between p-3 rounded-xl border text-left transition-all ${
-                    isAssigned
-                      ? "bg-green-500/10 border-green-500/20 opacity-70 hover:opacity-100 hover:border-red-500/30 hover:bg-red-500/5 group"
-                      : selectedItem === item.id
-                        ? "bg-purple-500/20 border-purple-500 ring-1 ring-purple-500"
-                        : "bg-white/5 border-white/10 hover:bg-white/10"
-                  }`}
+                  className={`w-full flex items-center justify-between p-3 rounded-xl border text-left transition-all ${isAssigned
+                    ? "bg-green-500/10 border-green-500/20 opacity-70 hover:opacity-100 hover:border-red-500/30 hover:bg-red-500/5 group"
+                    : selectedItem === item.id
+                      ? "bg-purple-500/20 border-purple-500 ring-1 ring-purple-500"
+                      : "bg-white/5 border-white/10 hover:bg-white/10"
+                    }`}
                 >
                   <div className="flex-1">
                     <div className="text-white font-medium">
@@ -90,14 +81,17 @@ export function ItemAssigner({
                       {item.quantity > 1 ? `(x${item.quantity})` : ""}
                     </div>
                     {isAssigned && (
-                      <div className="text-xs text-green-400 group-hover:text-red-400 flex items-center gap-1 mt-1">
-                        <span className="group-hover:hidden flex items-center gap-1">
-                          <Check className="h-3 w-3" /> Assigned to{" "}
-                          {assignedToName}
-                        </span>
-                        <span className="hidden group-hover:flex items-center gap-1">
-                          <X className="h-3 w-3" /> Unassign
-                        </span>
+                      <div className="text-xs text-green-400 group-hover:text-red-400 flex flex-wrap items-center gap-1 mt-1">
+                        <Check className="h-3 w-3" />
+                        <span>Shared by:</span>
+                        {currentAssignees.map((id) => (
+                          <span
+                            key={id}
+                            className="bg-green-500/20 px-1 rounded border border-green-500/30"
+                          >
+                            {participants.find((p) => p.id === id)?.name}
+                          </span>
+                        ))}
                       </div>
                     )}
                   </div>
@@ -128,14 +122,30 @@ export function ItemAssigner({
                 <button
                   onClick={() => handleAssign(p.id)}
                   disabled={!selectedItem}
-                  className={`flex-1 flex items-center gap-3 p-2 rounded-lg transition-all ${!selectedItem ? "cursor-default opacity-50" : "hover:bg-purple-500/20"}`}
+                  className={`flex-1 flex items-center gap-3 p-2 rounded-lg transition-all ${!selectedItem
+                    ? "cursor-default"
+                    : (assignedItems[selectedItem!] || []).includes(p.id)
+                      ? "bg-purple-500/40 border-purple-500/50"
+                      : "hover:bg-purple-500/20"
+                    }`}
                 >
                   <div className="p-2 rounded-full bg-white/5">
-                    <User className="h-4 w-4 text-gray-400" />
+                    {(assignedItems[selectedItem!] || []).includes(p.id) ? (
+                      <Check className="h-4 w-4 text-purple-400" />
+                    ) : (
+                      <User className="h-4 w-4 text-gray-400" />
+                    )}
                   </div>
-                  <span className="font-medium text-white">
-                    {p.name || "Unnamed Friend"}
-                  </span>
+                  <input
+                    type="text"
+                    value={p.name}
+                    onChange={(e) =>
+                      onUpdateParticipant(p.id, "name", e.target.value)
+                    }
+                    placeholder="Name"
+                    className="bg-transparent border-none text-white font-medium focus:outline-none w-full"
+                    onClick={(e) => e.stopPropagation()}
+                  />
                 </button>
 
                 <button
@@ -151,6 +161,23 @@ export function ItemAssigner({
               </div>
             ))}
           </div>
+
+          <form onSubmit={handleAddFriend} className="flex gap-2">
+            <input
+              type="text"
+              value={newFriendName}
+              onChange={(e) => setNewFriendName(e.target.value)}
+              placeholder="Friend's name..."
+              className="flex-1 bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-purple-500/50"
+            />
+            <button
+              type="submit"
+              disabled={!newFriendName.trim()}
+              className="p-2 bg-purple-500 hover:bg-purple-600 disabled:opacity-50 disabled:hover:bg-purple-500 text-white rounded-xl transition-colors"
+            >
+              <Plus className="h-5 w-5" />
+            </button>
+          </form>
           {participants.length === 0 && (
             <div className="text-center p-4 text-gray-500 border border-dashed border-white/10 rounded-xl">
               Add friends below to assign items!

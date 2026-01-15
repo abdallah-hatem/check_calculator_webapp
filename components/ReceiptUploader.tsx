@@ -6,9 +6,10 @@ import { scanReceipt, ScanResult } from "@/app/actions/scan";
 
 interface ReceiptUploaderProps {
   onScanComplete: (data: ScanResult) => void;
+  onTestData?: () => void;
 }
 
-export function ReceiptUploader({ onScanComplete }: ReceiptUploaderProps) {
+export function ReceiptUploader({ onScanComplete, onTestData }: ReceiptUploaderProps) {
   const [isScanning, setIsScanning] = useState(false);
   const [isDragOver, setIsDragOver] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -43,11 +44,10 @@ export function ReceiptUploader({ onScanComplete }: ReceiptUploaderProps) {
 
   return (
     <div
-      className={`relative group border-2 border-dashed rounded-2xl p-8 transition-all duration-300 ${
-        isDragOver
+      className={`relative group border-2 border-dashed rounded-2xl p-8 transition-all duration-300 ${isDragOver
           ? "border-purple-500 bg-purple-500/10"
           : "border-white/10 hover:border-purple-500/50 hover:bg-white/5"
-      }`}
+        }`}
       onDragOver={(e) => {
         e.preventDefault();
         setIsDragOver(true);
@@ -92,6 +92,15 @@ export function ReceiptUploader({ onScanComplete }: ReceiptUploaderProps) {
           >
             <Upload className="h-4 w-4" />
             Upload Image
+          </button>
+        )}
+
+        {onTestData && !isScanning && (
+          <button
+            onClick={onTestData}
+            className="text-xs font-bold text-green-400/50 hover:text-green-400 transition-colors uppercase tracking-widest mt-4"
+          >
+            Load Test Data (Dev Only)
           </button>
         )}
       </div>
