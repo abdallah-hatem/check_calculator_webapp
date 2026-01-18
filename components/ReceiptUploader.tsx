@@ -1,11 +1,7 @@
-"use client";
-
-import React, { useState, useRef } from "react";
-import { Scan, Upload, Loader2, Image as ImageIcon } from "lucide-react";
-import { scanReceipt, ScanResult } from "@/app/actions/scan";
+import { useReceipts } from "@/lib/hooks";
 
 interface ReceiptUploaderProps {
-  onScanComplete: (data: ScanResult) => void;
+  onScanComplete: (data: any) => void;
   onTestData?: () => void;
 }
 
@@ -13,16 +9,26 @@ export function ReceiptUploader({ onScanComplete, onTestData }: ReceiptUploaderP
   const [isScanning, setIsScanning] = useState(false);
   const [isDragOver, setIsDragOver] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const { scanReceipt } = useReceipts();
 
   const handleFile = async (file: File) => {
     if (!file.type.startsWith("image/")) return;
 
     setIsScanning(true);
-    const formData = new FormData();
-    formData.append("file", file);
 
     try {
-      const result = await scanReceipt(formData);
+      // Helper to convert file to base64
+      const reader = new FileReader();
+      const base64Promise = new Promise<string>((resolve) => {
+        reader.onload = () => {
+          const base64String = (reader.result as string).split(",")[1];
+          resolve(base64String);
+        };
+      });
+      reader.readAsDataURL(file);
+      const base64 = await base64Promise;
+
+      const result = await scanReceipt(base64, file.type);
       if (result) {
         onScanComplete(result);
       }
@@ -45,8 +51,8 @@ export function ReceiptUploader({ onScanComplete, onTestData }: ReceiptUploaderP
   return (
     <div
       className={`relative group border-2 border-dashed rounded-2xl p-8 transition-all duration-300 ${isDragOver
-          ? "border-purple-500 bg-purple-500/10"
-          : "border-white/10 hover:border-purple-500/50 hover:bg-white/5"
+        ? "border-purple-500 bg-purple-500/10"
+        : "border-white/10 hover:border-purple-500/50 hover:bg-white/5"
         }`}
       onDragOver={(e) => {
         e.preventDefault();
