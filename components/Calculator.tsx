@@ -22,7 +22,17 @@ import {
   RotateCcw,
 } from "lucide-react";
 
+import { useAuth } from "./AuthContext";
+import { apiClient } from "@/lib/api-client";
+
+interface Friend {
+  id: string;
+  name: string;
+  userId: string;
+}
+
 export function Calculator() {
+  const { user } = useAuth();
   const resultsRef = useRef<HTMLDivElement>(null);
 
   // UI Modes
@@ -38,13 +48,29 @@ export function Calculator() {
 
   const [targetTotal, setTargetTotal] = useState<number | null>(null);
 
-  const [participants, setParticipants] = useState<Participant[]>([
-    { id: "1", name: "Mina", orderedAmount: 0, paidAmount: 0 },
-    { id: "2", name: "Hossam", orderedAmount: 0, paidAmount: 0 },
-    { id: "3", name: "Hatem", orderedAmount: 0, paidAmount: 0 },
-    { id: "4", name: "Salah", orderedAmount: 0, paidAmount: 0 },
-    { id: "5", name: "Safwat", orderedAmount: 0, paidAmount: 0 },
-  ]);
+  const [participants, setParticipants] = useState<Participant[]>([]);
+
+  React.useEffect(() => {
+    const fetchFriends = async () => {
+      try {
+        const friends = await apiClient.get<Friend[]>("/friends");
+        setParticipants(
+          friends.map((f) => ({
+            id: f.id,
+            name: f.name,
+            orderedAmount: 0,
+            paidAmount: 0,
+          }))
+        );
+      } catch (error) {
+        console.error("Failed to fetch friends", error);
+      }
+    };
+
+    if (user) {
+      fetchFriends();
+    }
+  }, [user]);
 
   // Scanned Data State
   const [scannedItems, setScannedItems] = useState<ScannedItem[]>([]);
@@ -52,15 +78,34 @@ export function Calculator() {
     {},
   );
 
+  // Friend Add State
+  const [showAddFriend, setShowAddFriend] = useState(false);
+  const [newFriendName, setNewFriendName] = useState("");
+
   const handleBillChange = (key: keyof BillDetails, value: number) => {
     setBill((prev) => ({ ...prev, [key]: value }));
   };
 
-  const handleAddParticipant = (initialName: string = "") => {
+  const handleAddParticipant = () => {
+    setNewFriendName("");
+    setShowAddFriend(true);
+  };
+
+  const handleSaveFriend = () => {
+    if (!newFriendName.trim()) return;
+
+    // Frontend only add friend
+    const tempId = uuidv4();
     setParticipants((prev) => [
       ...prev,
-      { id: uuidv4(), name: initialName, orderedAmount: 0, paidAmount: 0 },
+      {
+        id: tempId,
+        name: newFriendName,
+        orderedAmount: 0,
+        paidAmount: 0,
+      },
     ]);
+    setShowAddFriend(false);
   };
 
   const handleRemoveParticipant = (id: string) => {
@@ -94,13 +139,12 @@ export function Calculator() {
     if (window.confirm("Reset all data? This cannot be undone.")) {
       setBill({ delivery: 0, tax: 0, service: 0 });
       setTargetTotal(null);
-      setParticipants([
-        { id: "1", name: "Mina", orderedAmount: 0, paidAmount: 0 },
-        { id: "2", name: "Hossam", orderedAmount: 0, paidAmount: 0 },
-        { id: "3", name: "Hatem", orderedAmount: 0, paidAmount: 0 },
-        { id: "4", name: "Salah", orderedAmount: 0, paidAmount: 0 },
-        { id: "5", name: "Safwat", orderedAmount: 0, paidAmount: 0 },
-      ]);
+      setParticipants([]);
+      // Re-fetch friends would be better but for now just clear or keep them?
+      // Actually, reset usually implies "start over with the same friends but 0 amounts".
+      // But the original code reset to hardcoded list.
+      // Let's reset amounts but keep friends.
+      setParticipants(prev => prev.map(p => ({ ...p, orderedAmount: 0, paidAmount: 0 })));
       setScannedItems([]);
       setAssignedItems({});
     }
@@ -401,6 +445,52 @@ export function Calculator() {
           </div>
         )
       }
-    </div >
+      {/* Add Friend Modal */}
+      {showAddFriend && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="w-full max-w-md bg-gray-900 border border-white/10 rounded-2xl shadow-2xl p-6 animate-in zoom-in-95 duration-200">
+            <h2 className="text-xl font-bold text-white mb-4">Add New Friend</h2>
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                handleSaveFriend();
+              }}
+              className="space-y-4"
+            >
+              <div>
+                <label className="text-sm font-medium text-gray-400 mb-1 block">
+                  Friend's Name
+                </label>
+                <input
+                  type="text"
+                  autoFocus
+                  value={newFriendName}
+                  onChange={(e) => setNewFriendName(e.target.value)}
+                  className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none text-white transition-all"
+                  placeholder="e.g. Alice"
+                />
+              </div>
+              <div className="flex gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setShowAddFriend(false)}
+                  className="flex-1 py-3 bg-white/5 hover:bg-white/10 text-gray-300 font-semibold rounded-xl transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={handleSaveFriend}
+                  disabled={!newFriendName.trim()}
+                  className="flex-1 py-3 bg-purple-600 hover:bg-purple-500 text-white font-semibold rounded-xl shadow-lg shadow-purple-900/20 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                >
+                  Add Friend
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+    </div>
   );
 }

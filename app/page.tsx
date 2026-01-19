@@ -4,6 +4,7 @@ import { Calculator } from "@/components/Calculator";
 import { AuthForm } from "@/components/AuthForm";
 import { useAuth } from "@/components/AuthContext";
 import { LogOut, User as UserIcon } from "lucide-react";
+import Link from "next/link";
 
 export default function Home() {
   const { user, loading, logout } = useAuth();
@@ -41,13 +42,22 @@ export default function Home() {
                   <p className="text-xs text-gray-500 leading-none">{user.email}</p>
                 </div>
               </div>
-              <button
-                onClick={logout}
-                className="p-3 text-gray-400 hover:text-red-400 hover:bg-red-500/10 rounded-xl transition-all"
-                title="Log Out"
-              >
-                <LogOut className="h-5 w-5" />
-              </button>
+              <div className="flex items-center gap-2">
+                <Link
+                  href="/profile"
+                  className="p-3 text-gray-400 hover:text-purple-400 hover:bg-purple-500/10 rounded-xl transition-all"
+                  title="My Profile"
+                >
+                  <UserIcon className="h-5 w-5" />
+                </Link>
+                <button
+                  onClick={logout}
+                  className="p-3 text-gray-400 hover:text-red-400 hover:bg-red-500/10 rounded-xl transition-all"
+                  title="Log Out"
+                >
+                  <LogOut className="h-5 w-5" />
+                </button>
+              </div>
             </div>
           )}
         </div>
