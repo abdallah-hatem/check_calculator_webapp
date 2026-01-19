@@ -103,7 +103,7 @@ export function ReceiptUploader({ onScanComplete, onTestData }: ReceiptUploaderP
           </button>
         )}
 
-        {onTestData && !isScanning && (
+        {process.env.NODE_ENV === "development" && onTestData && !isScanning && (
           <button
             onClick={onTestData}
             className="text-xs font-bold text-green-400/50 hover:text-green-400 transition-colors uppercase tracking-widest mt-4"
