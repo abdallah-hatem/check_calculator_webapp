@@ -86,8 +86,8 @@ export function Calculator() {
     setBill((prev) => ({ ...prev, [key]: value }));
   };
 
-  const handleAddParticipant = (name?: string) => {
-    if (name && name.trim()) {
+  const handleAddParticipant = (name?: any) => {
+    if (typeof name === "string" && name.trim()) {
       const tempId = uuidv4();
       setParticipants((prev) => [
         ...prev,
