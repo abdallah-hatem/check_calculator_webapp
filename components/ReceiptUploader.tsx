@@ -1,4 +1,6 @@
+import React, { useState, useRef } from "react";
 import { useReceipts } from "@/lib/hooks";
+import { Loader2, Scan, Upload } from "lucide-react";
 
 interface ReceiptUploaderProps {
   onScanComplete: (data: any) => void;

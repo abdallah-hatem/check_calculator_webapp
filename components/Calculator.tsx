@@ -86,7 +86,20 @@ export function Calculator() {
     setBill((prev) => ({ ...prev, [key]: value }));
   };
 
-  const handleAddParticipant = () => {
+  const handleAddParticipant = (name?: string) => {
+    if (name && name.trim()) {
+      const tempId = uuidv4();
+      setParticipants((prev) => [
+        ...prev,
+        {
+          id: tempId,
+          name: name.trim(),
+          orderedAmount: 0,
+          paidAmount: 0,
+        },
+      ]);
+      return;
+    }
     setNewFriendName("");
     setShowAddFriend(true);
   };
@@ -362,7 +375,7 @@ export function Calculator() {
             Friends & Orders
           </h2>
           <ParticipantList
-            participants={participants}
+            participants={participantsWithSharedCosts}
             onAdd={handleAddParticipant}
             onRemove={handleRemoveParticipant}
             onUpdate={handleParticipantUpdate}

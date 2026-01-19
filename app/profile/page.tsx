@@ -118,7 +118,7 @@ export default function ProfilePage() {
 
                 {/* User Card */}
                 <div className="p-6 bg-white/5 backdrop-blur-lg border border-white/10 rounded-2xl shadow-xl flex items-center gap-6">
-                    <div className="h-20 w-20 rounded-full bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center">
+                    <div className="h-20 w-20 rounded-full bg-linear-to-br from-purple-500 to-blue-500 flex items-center justify-center">
                         <UserIcon className="h-10 w-10 text-white" />
                     </div>
                     <div>
@@ -183,7 +183,7 @@ export default function ProfilePage() {
 
             {/* Add Friend Modal */}
             {showAddForm && (
-                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
+                <div className="fixed inset-0 z-100 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
                     <div className="w-full max-w-md bg-gray-900 border border-white/10 rounded-2xl shadow-2xl p-6 animate-in zoom-in-95 duration-200">
                         <h2 className="text-xl font-bold text-white mb-4">Add Default Friend</h2>
                         <form onSubmit={handleAddFriend} className="space-y-4">
