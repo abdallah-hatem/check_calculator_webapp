@@ -7,10 +7,14 @@ interface ReceiptUploaderProps {
   onTestData?: () => void;
 }
 
-export function ReceiptUploader({ onScanComplete, onTestData }: ReceiptUploaderProps) {
+export function ReceiptUploader({
+  onScanComplete,
+  onTestData,
+}: ReceiptUploaderProps) {
   const [isScanning, setIsScanning] = useState(false);
   const [isDragOver, setIsDragOver] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const cameraInputRef = useRef<HTMLInputElement>(null);
   const { scanReceipt } = useReceipts();
 
   const handleFile = async (file: File) => {
@@ -52,10 +56,11 @@ export function ReceiptUploader({ onScanComplete, onTestData }: ReceiptUploaderP
 
   return (
     <div
-      className={`relative group border-2 border-dashed rounded-2xl p-8 transition-all duration-300 ${isDragOver
-        ? "border-purple-500 bg-purple-500/10"
-        : "border-white/10 hover:border-purple-500/50 hover:bg-white/5"
-        }`}
+      className={`relative group border-2 border-dashed rounded-2xl p-8 transition-all duration-300 ${
+        isDragOver
+          ? "border-purple-500 bg-purple-500/10"
+          : "border-white/10 hover:border-purple-500/50 hover:bg-white/5"
+      }`}
       onDragOver={(e) => {
         e.preventDefault();
         setIsDragOver(true);
@@ -68,6 +73,15 @@ export function ReceiptUploader({ onScanComplete, onTestData }: ReceiptUploaderP
         ref={fileInputRef}
         className="hidden"
         accept="image/*"
+        onChange={(e) => e.target.files?.[0] && handleFile(e.target.files[0])}
+      />
+
+      <input
+        type="file"
+        ref={cameraInputRef}
+        className="hidden"
+        accept="image/*"
+        capture="environment"
         onChange={(e) => e.target.files?.[0] && handleFile(e.target.files[0])}
       />
 
@@ -94,23 +108,34 @@ export function ReceiptUploader({ onScanComplete, onTestData }: ReceiptUploaderP
         </div>
 
         {!isScanning && (
-          <button
-            onClick={() => fileInputRef.current?.click()}
-            className="px-6 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg font-medium transition-colors flex items-center gap-2"
-          >
-            <Upload className="h-4 w-4" />
-            Upload Image
-          </button>
+          <div className="flex flex-col sm:flex-row gap-3 w-full max-w-sm px-4">
+            <button
+              onClick={() => cameraInputRef.current?.click()}
+              className="flex-1 px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white rounded-xl font-bold shadow-lg shadow-purple-900/20 active:scale-95 transition-all flex items-center justify-center gap-2"
+            >
+              <Scan className="h-5 w-5" />
+              Take Photo
+            </button>
+            <button
+              onClick={() => fileInputRef.current?.click()}
+              className="flex-1 px-6 py-3 bg-white/10 hover:bg-white/20 text-white rounded-xl font-semibold border border-white/10 active:scale-95 transition-all flex items-center justify-center gap-2"
+            >
+              <Upload className="h-4 w-4" />
+              Upload Image
+            </button>
+          </div>
         )}
 
-        {process.env.NODE_ENV === "development" && onTestData && !isScanning && (
-          <button
-            onClick={onTestData}
-            className="text-xs font-bold text-green-400/50 hover:text-green-400 transition-colors uppercase tracking-widest mt-4"
-          >
-            Load Test Data (Dev Only)
-          </button>
-        )}
+        {process.env.NODE_ENV === "development" &&
+          onTestData &&
+          !isScanning && (
+            <button
+              onClick={onTestData}
+              className="text-xs font-bold text-green-400/50 hover:text-green-400 transition-colors uppercase tracking-widest mt-4"
+            >
+              Load Test Data (Dev Only)
+            </button>
+          )}
       </div>
     </div>
   );
