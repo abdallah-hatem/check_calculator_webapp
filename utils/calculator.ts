@@ -4,6 +4,7 @@ export interface Participant {
   name: string;
   orderedAmount: number;
   paidAmount: number;
+  isDefault?: boolean;
 }
 
 export interface BillDetails {

@@ -20,6 +20,7 @@ import {
   X,
   ArrowLeft,
   RotateCcw,
+  Loader2,
 } from "lucide-react";
 
 import { useAuth } from "./AuthContext";
@@ -38,6 +39,7 @@ export function Calculator() {
   // UI Modes
   const [showResults, setShowResults] = useState(false);
   const [showScanner, setShowScanner] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
 
   // Data State
   const [bill, setBill] = useState<BillDetails>({
@@ -54,14 +56,29 @@ export function Calculator() {
     const fetchFriends = async () => {
       try {
         const friends = await apiClient.get<Friend[]>("/friends");
-        setParticipants(
-          friends.map((f) => ({
-            id: f.id,
-            name: f.name,
-            orderedAmount: 0,
-            paidAmount: 0,
-          }))
-        );
+        const friendParticipants: Participant[] = friends.map((f) => ({
+          id: f.id,
+          name: f.name,
+          orderedAmount: 0,
+          paidAmount: 0,
+          isDefault: true,
+        }));
+
+        // Add "Me" at the beginning
+        if (user) {
+          setParticipants([
+            {
+              id: "me", // Special ID for the current user
+              name: `Me (${user.name})`,
+              orderedAmount: 0,
+              paidAmount: 0,
+              isDefault: true,
+            },
+            ...friendParticipants,
+          ]);
+        } else {
+          setParticipants(friendParticipants);
+        }
       } catch (error) {
         console.error("Failed to fetch friends", error);
       }
@@ -88,7 +105,7 @@ export function Calculator() {
 
   const handleAddParticipant = (name?: any) => {
     if (typeof name === "string" && name.trim()) {
-      const tempId = uuidv4();
+      const tempId = `temp-${uuidv4()}`;
       setParticipants((prev) => [
         ...prev,
         {
@@ -96,6 +113,7 @@ export function Calculator() {
           name: name.trim(),
           orderedAmount: 0,
           paidAmount: 0,
+          isDefault: false,
         },
       ]);
       return;
@@ -108,7 +126,7 @@ export function Calculator() {
     if (!newFriendName.trim()) return;
 
     // Frontend only add friend
-    const tempId = uuidv4();
+    const tempId = `temp-${uuidv4()}`;
     setParticipants((prev) => [
       ...prev,
       {
@@ -116,6 +134,7 @@ export function Calculator() {
         name: newFriendName,
         orderedAmount: 0,
         paidAmount: 0,
+        isDefault: false,
       },
     ]);
     setShowAddFriend(false);
@@ -447,12 +466,74 @@ export function Calculator() {
                   participants={results}
                 />
 
-                <button
-                  onClick={() => setShowResults(false)}
-                  className="w-full py-4 bg-white/10 hover:bg-white/20 text-white font-bold rounded-xl transition-colors"
-                >
-                  Back to Edit
-                </button>
+                <div className="flex flex-col gap-3">
+                  <button
+                    onClick={async () => {
+                      try {
+                        setIsSaving(true);
+                        console.log("Saving receipt. User ID:", user?.id);
+                        const data = {
+                          name: "Scanned Receipt",
+                          total: totalBill,
+                          subtotal: Math.round(scannedItems.reduce((sum, item) => sum + item.price * item.quantity, 0) * 100) / 100,
+                          tax: bill.tax,
+                          delivery: bill.delivery,
+                          service: bill.service,
+                            items: scannedItems.map(item => ({
+                                name: item.name,
+                                price: item.price,
+                                quantity: item.quantity,
+                                assignments: (assignedItems[item.id] || []).map(participantId => {
+                                    const p = participants.find(p => p.id === participantId);
+                                    if (!p) return null;
+                                    
+                                    // Handle "Me" participant
+                                    if (p.id === "me") return { userId: user?.id };
+                                    
+                                    // Handle default friends
+                                    const isRealFriend = p.isDefault || !p.id.startsWith("temp-");
+                                    return {
+                                        friendId: isRealFriend ? p.id : undefined,
+                                    } as { friendId?: string; userId?: string };
+                                }).filter((a): a is { friendId?: string; userId?: string } => !!a && (!!a.friendId || !!a.userId))
+                            })),
+                            payments: participants.map(p => {
+                                const isMe = p.id === "me";
+                                const isRealFriend = (p.isDefault || !p.id.startsWith("temp-")) && !isMe;
+                                return {
+                                    amount: p.paidAmount,
+                                    friendId: isRealFriend ? p.id : undefined,
+                                    userId: isMe ? user?.id : undefined,
+                                };
+                            }).filter(pay => pay.friendId || pay.userId)
+                        };
+                        await apiClient.post("/receipts", data);
+                        alert("Receipt saved successfully!");
+                        setShowResults(false);
+                      } catch (err) {
+                        console.error("Failed to save receipt", err);
+                        alert("Failed to save receipt. Please try again.");
+                      } finally {
+                        setIsSaving(false);
+                      }
+                    }}
+                    disabled={isSaving}
+                    className="w-full py-4 bg-purple-600 hover:bg-purple-500 text-white font-bold rounded-xl shadow-lg shadow-purple-900/20 disabled:opacity-50 transition-all flex items-center justify-center gap-2"
+                  >
+                    {isSaving ? (
+                      <Loader2 className="h-5 w-5 animate-spin" />
+                    ) : (
+                      "Save to History"
+                    )}
+                  </button>
+
+                  <button
+                    onClick={() => setShowResults(false)}
+                    className="w-full py-4 bg-white/10 hover:bg-white/20 text-white font-bold rounded-xl transition-colors"
+                  >
+                    Back to Edit
+                  </button>
+                </div>
               </div>
             </div>
           </div>
