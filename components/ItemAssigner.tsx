@@ -96,7 +96,7 @@ export function ItemAssigner({
                     )}
                   </div>
                   <div className="font-bold text-white">
-                    ${item.price.toFixed(2)}
+                    E£{item.price.toFixed(2)}
                   </div>
                 </button>
               );

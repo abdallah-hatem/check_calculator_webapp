@@ -35,7 +35,7 @@ export function SettlementDisplay({ settlements, participants }: SettlementDispl
                   <span className="font-medium text-white">{s.to}</span>
                 </div>
                 <div className="font-bold text-emerald-400 text-lg">
-                  ${s.amount.toFixed(2)}
+                  E£{s.amount.toFixed(2)}
                 </div>
               </div>
             ))}
@@ -67,11 +67,11 @@ export function SettlementDisplay({ settlements, participants }: SettlementDispl
                 return (
                     <tr key={p.id} className="hover:bg-white/5 transition-colors">
                         <td className="px-4 py-3 font-medium text-white">{p.name}</td>
-                        <td className="px-4 py-3 text-gray-300">${p.subtotalShare.toFixed(2)}</td>
-                        <td className="px-4 py-3 text-gray-400">+${extras.toFixed(2)}</td>
-                        <td className="px-4 py-3 font-bold text-white">${p.totalOwed.toFixed(2)}</td>
+                        <td className="px-4 py-3 text-gray-300">E£{p.subtotalShare.toFixed(2)}</td>
+                        <td className="px-4 py-3 text-gray-400">+E£{extras.toFixed(2)}</td>
+                        <td className="px-4 py-3 font-bold text-white">E£{p.totalOwed.toFixed(2)}</td>
                         <td className={`px-4 py-3 font-bold ${p.netBalance >= 0 ? 'text-green-400' : 'text-red-400'}`}>
-                            {p.netBalance >= 0 ? '+' : ''}${p.netBalance.toFixed(2)}
+                            {p.netBalance >= 0 ? '+' : ''}E£{p.netBalance.toFixed(2)}
                         </td>
                     </tr>
                 );

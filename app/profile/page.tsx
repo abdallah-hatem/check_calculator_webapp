@@ -305,7 +305,7 @@ export default function ProfilePage() {
                                     </div>
                                     <div className="flex items-center gap-4">
                                         <div className="text-right">
-                                            <div className="text-white font-bold">${receipt.total.toFixed(2)}</div>
+                                            <div className="text-white font-bold">E£{receipt.total.toFixed(2)}</div>
                                             <div className="text-xs text-gray-500 uppercase tracking-wider">Total</div>
                                         </div>
                                         <ChevronRight className="h-5 w-5 text-gray-600 group-hover:text-white transition-colors" />
@@ -325,12 +325,12 @@ export default function ProfilePage() {
                                     <div className="p-6 bg-emerald-500/10 border border-emerald-500/20 rounded-2xl relative overflow-hidden group">
                                         <TrendingUp className="absolute -right-4 -bottom-4 h-24 w-24 text-emerald-500/10 group-hover:scale-110 transition-transform" />
                                         <p className="text-emerald-500 text-xs font-bold uppercase tracking-widest mb-2">Total Paid</p>
-                                        <p className="text-3xl font-black text-white">${stats.totalPaid.toFixed(2)}</p>
+                                        <p className="text-3xl font-black text-white">E£{stats.totalPaid.toFixed(2)}</p>
                                     </div>
                                     <div className="p-6 bg-blue-500/10 border border-blue-500/20 rounded-2xl relative overflow-hidden group">
                                         <BarChart3 className="absolute -right-4 -bottom-4 h-24 w-24 text-blue-500/10 group-hover:scale-110 transition-transform" />
                                         <p className="text-blue-500 text-xs font-bold uppercase tracking-widest mb-2">Total Ordered</p>
-                                        <p className="text-3xl font-black text-white">${stats.totalOrdered.toFixed(2)}</p>
+                                        <p className="text-3xl font-black text-white">E£{stats.totalOrdered.toFixed(2)}</p>
                                     </div>
                                 </div>
 
@@ -357,8 +357,8 @@ export default function ProfilePage() {
                                                         />
                                                     </div>
                                                     <div className="flex justify-between text-xs">
-                                                        <span className="text-emerald-400">Paid: ${ms.paid.toFixed(2)}</span>
-                                                        <span className="text-blue-400">Ordered: ${ms.ordered.toFixed(2)}</span>
+                                                        <span className="text-emerald-400">Paid: E£{ms.paid.toFixed(2)}</span>
+                                                        <span className="text-blue-400">Ordered: E£{ms.ordered.toFixed(2)}</span>
                                                     </div>
                                                 </div>
                                             </div>

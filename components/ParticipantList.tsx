@@ -74,7 +74,7 @@ export function ParticipantList({
                   Paid
                 </label>
                 <div className="relative">
-                  <DollarSign className="absolute top-2.5 left-3 h-4 w-4 text-green-400" />
+                  <span className="absolute top-2.5 left-3 text-xs font-bold text-green-400">E£</span>
                   <MathInput
                     value={person.paidAmount}
                     onChange={(val) => onUpdate(person.id, "paidAmount", val)}

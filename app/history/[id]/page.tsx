@@ -177,7 +177,7 @@ export default function HistoryDetailsPage() {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div className="p-6 bg-white/5 border border-white/10 rounded-2xl">
                         <p className="text-gray-500 text-sm font-medium uppercase tracking-wider mb-1">Total Bill</p>
-                        <p className="text-3xl font-black text-white">${receipt.total.toFixed(2)}</p>
+                        <p className="text-3xl font-black text-white">E£{receipt.total.toFixed(2)}</p>
                     </div>
                     <div className="p-6 bg-white/5 border border-white/10 rounded-2xl">
                         <p className="text-gray-500 text-sm font-medium uppercase tracking-wider mb-1">Participants</p>
@@ -206,7 +206,7 @@ export default function HistoryDetailsPage() {
                                     >
                                         <div className="flex justify-between items-start mb-2">
                                             <div className="text-white font-medium">{item.name}</div>
-                                            <div className="text-white font-bold">${item.price.toFixed(2)}</div>
+                                            <div className="text-white font-bold">E£{item.price.toFixed(2)}</div>
                                         </div>
                                         <div className="flex flex-wrap gap-2">
                                             {item.assignments.map((a, i) => (
@@ -234,23 +234,23 @@ export default function HistoryDetailsPage() {
                             <div className="bg-white/5 border border-white/10 rounded-2xl p-4 space-y-3">
                                 <div className="flex justify-between text-gray-400">
                                     <span>Subtotal</span>
-                                    <span>${receipt.subtotal.toFixed(2)}</span>
+                                    <span>E£{receipt.subtotal.toFixed(2)}</span>
                                 </div>
                                 <div className="flex justify-between text-gray-400">
                                     <span>Tax</span>
-                                    <span>${receipt.tax.toFixed(2)}</span>
+                                    <span>E£{receipt.tax.toFixed(2)}</span>
                                 </div>
                                 <div className="flex justify-between text-gray-400">
                                     <span>Service</span>
-                                    <span>${receipt.service.toFixed(2)}</span>
+                                    <span>E£{receipt.service.toFixed(2)}</span>
                                 </div>
                                 <div className="flex justify-between text-gray-400">
                                     <span>Delivery</span>
-                                    <span>${receipt.delivery.toFixed(2)}</span>
+                                    <span>E£{receipt.delivery.toFixed(2)}</span>
                                 </div>
                                 <div className="pt-3 border-t border-white/5 flex justify-between text-white font-bold">
                                     <span>Total</span>
-                                    <span>${receipt.total.toFixed(2)}</span>
+                                    <span>E£{receipt.total.toFixed(2)}</span>
                                 </div>
                             </div>
                         </section>
@@ -289,7 +289,7 @@ export default function HistoryDetailsPage() {
                                                 </div>
                                             </div>
                                             <div className="text-right">
-                                                <p className="text-2xl font-black text-white">${s.amount.toFixed(2)}</p>
+                                                <p className="text-2xl font-black text-white">E£{s.amount.toFixed(2)}</p>
                                             </div>
                                         </div>
                                     ))}
@@ -323,9 +323,9 @@ export default function HistoryDetailsPage() {
                                         </div>
                                         <div className="grid grid-cols-2 gap-2 text-sm">
                                             <div className="text-gray-500">Should have paid:</div>
-                                            <div className="text-right text-gray-300 font-medium">${r.totalOwed.toFixed(2)}</div>
+                                            <div className="text-right text-gray-300 font-medium">E£{r.totalOwed.toFixed(2)}</div>
                                             <div className="text-gray-500">Actually paid:</div>
-                                            <div className="text-right text-emerald-400 font-medium">${r.paidAmount.toFixed(2)}</div>
+                                            <div className="text-right text-emerald-400 font-medium">E£{r.paidAmount.toFixed(2)}</div>
                                         </div>
                                     </div>
                                 ))}

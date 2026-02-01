@@ -153,7 +153,7 @@ export function BillInput({
             Total Calculated
           </span>
           <span className="text-2xl font-black text-white">
-            ${calculatedTotal.toFixed(2)}
+            E£{calculatedTotal.toFixed(2)}
           </span>
         </div>
         {targetTotal !== null && (
@@ -167,7 +167,7 @@ export function BillInput({
                 isMatch ? "text-green-400" : "text-red-400",
               )}
             >
-              {isMatch ? "Perfect Match!" : `$${difference.toFixed(2)}`}
+              {isMatch ? "Perfect Match!" : `E£${difference.toFixed(2)}`}
             </span>
           </div>
         )}

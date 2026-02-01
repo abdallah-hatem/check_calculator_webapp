@@ -412,7 +412,7 @@ export function Calculator() {
             <div
               className={`text-xl font-bold ${!isTargetMatched ? "text-red-400" : "text-white"}`}
             >
-              ${totalBill.toFixed(2)}
+              E£{totalBill.toFixed(2)}
             </div>
           </div>
           <button
@@ -455,7 +455,7 @@ export function Calculator() {
                   </div>
                   {!isPaidMatched && (
                     <div className="mt-1 text-sm text-gray-400">
-                      Friends paid ${totalPaid.toFixed(2)} but bill is $
+                      Friends paid E£{totalPaid.toFixed(2)} but bill is E£
                       {totalBill.toFixed(2)}.
                     </div>
                   )}
